@@ -22,4 +22,4 @@ EXPOSE 9134
 
 # Configuración de ejecución
 ENTRYPOINT ["/usr/local/bin/zfs_exporter"]
-CMD ["--collector.dataset-volumes", "--web.disable-exporter-metrics", "--web.telemetry-path=/metrics"]
+CMD ["--web.disable-exporter-metrics", "--web.telemetry-path=/metrics"]
