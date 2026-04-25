@@ -48,7 +48,7 @@ jobs:
       # 4. Crear el Pull Request (solo si hay cambios)
       - name: Create Pull Request
         if: steps.compare.outputs.NEW_VERSION_FOUND == 'true'
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           path: target-repo
           token: ${{ secrets.GITHUB_TOKEN }}
