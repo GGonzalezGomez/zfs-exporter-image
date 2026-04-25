@@ -1,5 +1,5 @@
 # ETAPA 1: Construcción con Go 1.24
-FROM golang:1.24-alpine AS builder
+FROM golang:1.24.0-alpine AS builder
 
 # Declaramos el argumento que recibiremos desde fuera
 ARG EXPORTER_VERSION=latest
