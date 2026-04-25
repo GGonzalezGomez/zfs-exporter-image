@@ -1,0 +1,61 @@
+name: Sync Upstream Version
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Una vez a la semana - Domingos a las 00:00
+  workflow_dispatch:
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout de TU repositorio (donde se hará el PR)
+      - name: Checkout Target Repo
+        uses: actions/checkout@v4
+        with:
+          path: target-repo
+
+      # 2. Checkout del repositorio ORIGEN (pdf/zfs_exporter)
+      - name: Checkout Source Repo
+        uses: actions/checkout@v4
+        with:
+          repository: pdf/zfs_exporter
+          path: source-repo
+
+      # 3. Comparar versiones y preparar cambios
+      - name: Compare and Update
+        id: compare
+        run: |
+          # Leer versiones
+          SRC_VER=$(cat source-repo/VERSION)
+          TGT_VER=$(cat target-repo/version)
+          
+          echo "Source: $SRC_VER | Target: $TGT_VER"
+          
+          if [ "$SRC_VER" != "$TGT_VER" ]; then
+            echo "NEW_VERSION_FOUND=true" >> $GITHUB_OUTPUT
+            echo "VERSION_TAG=$SRC_VER" >> $GITHUB_OUTPUT
+            
+            # 1. Actualizar el archivo version en el target
+            echo "$SRC_VER" > target-repo/version
+            
+            # 2. Obtener versión de Go del origen y actualizar Dockerfile en target
+            GO_VER=$(grep -E '^go [0-9.]+' source-repo/go.mod | awk '{print $2}')
+            sed -i "s/^FROM golang:[0-9.]*-alpine/FROM golang:${GO_VER}-alpine/" target-repo/Dockerfile
+          else
+            echo "NEW_VERSION_FOUND=false" >> $GITHUB_OUTPUT
+          fi
+
+      # 4. Crear el Pull Request (solo si hay cambios)
+      - name: Create Pull Request
+        if: steps.compare.outputs.NEW_VERSION_FOUND == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          path: target-repo
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Update to zfs_exporter ${{ steps.compare.outputs.VERSION_TAG }}"
+          title: "Update Upstream v${{ steps.compare.outputs.VERSION_TAG }}"
+          body: |
+            New version detected in pdf/zfs_exporter.
+            - Version updated to: ${{ steps.compare.outputs.VERSION_TAG }}
+            - Go version updated in Dockerfile based on upstream go.mod.
+          branch: update-zfs-exporter
