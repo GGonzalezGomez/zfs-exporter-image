@@ -10,13 +10,13 @@ jobs:
     steps:
       # 1. Checkout de TU repositorio (donde se hará el PR)
       - name: Checkout Target Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: target-repo
 
       # 2. Checkout del repositorio ORIGEN (pdf/zfs_exporter)
       - name: Checkout Source Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: pdf/zfs_exporter
           path: source-repo
