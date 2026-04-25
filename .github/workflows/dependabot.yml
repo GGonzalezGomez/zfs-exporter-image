@@ -1,0 +1,10 @@
+version: 2
+updates:
+  # Mantiene actualizadas las versiones de las acciones en tus workflows (v4 -> v5, etc.)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "github-actions"
+      - "dependencies"
